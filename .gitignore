@@ -22,5 +22,4 @@ get_statistics.py
 vllm_starter.sh
 *.log
 *.mmd
-*.png
 *.bz2
