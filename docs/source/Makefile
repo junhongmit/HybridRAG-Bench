@@ -2,12 +2,16 @@
 
 SPHINXBUILD   ?= sphinx-build
 SOURCEDIR     = .
-BUILDDIR      = ../build
+OUTPUTDIR     = ..
+DOCTREEDIR    = ../.doctrees
 
 .PHONY: html clean
 
 html:
-	$(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)"
+	$(SPHINXBUILD) -b html -d "$(DOCTREEDIR)" "$(SOURCEDIR)" "$(OUTPUTDIR)"
 
 clean:
-	rm -rf "$(BUILDDIR)"
+	rm -rf "$(DOCTREEDIR)" \
+	"../_images" "../_sources" "../_static" "../get_started" "../install" \
+	"../genindex.html" "../index.html" "../leaderboard.html" \
+	"../objects.inv" "../search.html" "../searchindex.js" "../.buildinfo"

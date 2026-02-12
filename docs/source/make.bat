@@ -2,6 +2,7 @@
 
 set SPHINXBUILD=sphinx-build
 set SOURCEDIR=.
-set BUILDDIR=../build
+set OUTPUTDIR=..
+set DOCTREEDIR=../.doctrees
 
-%SPHINXBUILD% -M html %SOURCEDIR% %BUILDDIR%
+%SPHINXBUILD% -b html -d %DOCTREEDIR% %SOURCEDIR% %OUTPUTDIR%
