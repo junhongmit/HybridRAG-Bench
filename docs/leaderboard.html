@@ -9,7 +9,7 @@
   <title>Leaderboard &mdash; HybridRAG-Bench Documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
-      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=10291426" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=4ba378b6" />
 
   
     <link rel="shortcut icon" href="_static/logo.png"/>
@@ -50,7 +50,9 @@
 <li class="toctree-l1"><a class="reference internal" href="install/installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Leaderboard</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#summary">Summary</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#current-results">Current Results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#arxiv-ai">Arxiv_AI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#arxiv-cy">Arxiv_CY</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#arxiv-bio">Arxiv_BIO</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#submission-format">Submission Format</a></li>
 </ul>
 </li>
@@ -88,21 +90,21 @@
 <ul class="simple">
 <li><p>Metric columns can be adapted to your final evaluation protocol.</p></li>
 <li><p>Higher is better unless a column explicitly states lower-is-better.</p></li>
-<li><p>Update the table by editing <code class="docutils literal notranslate"><span class="pre">docs/source/_static/leaderboard.csv</span></code>.</p></li>
+<li><p>Update tables by editing:
+<code class="docutils literal notranslate"><span class="pre">docs/source/_static/leaderboard_arxiv_ai.csv</span></code>,
+<code class="docutils literal notranslate"><span class="pre">docs/source/_static/leaderboard_arxiv_cy.csv</span></code>,
+<code class="docutils literal notranslate"><span class="pre">docs/source/_static/leaderboard_arxiv_bio.csv</span></code>.</p></li>
 </ul>
 </section>
-<section id="current-results">
-<h2>Current Results<a class="headerlink" href="#current-results" title="Link to this heading"></a></h2>
+<section id="arxiv-ai">
+<h2>Arxiv_AI<a class="headerlink" href="#arxiv-ai" title="Link to this heading"></a></h2>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Rank</p></th>
 <th class="head"><p>Date</p></th>
 <th class="head"><p>Model</p></th>
 <th class="head"><p>Method</p></th>
-<th class="head"><p>Dataset</p></th>
-<th class="head"><p>EM</p></th>
-<th class="head"><p>F1</p></th>
-<th class="head"><p>Faithfulness</p></th>
+<th class="head"><p>Acc</p></th>
 <th class="head"><p>Notes</p></th>
 </tr>
 </thead>
@@ -111,9 +113,6 @@
 <td><p>2026-02-12</p></td>
 <td><p>Llama-3.3-70B</p></td>
 <td><p>HybridRAG</p></td>
-<td><p>movie</p></td>
-<td><p>0.000</p></td>
-<td><p>0.000</p></td>
 <td><p>0.000</p></td>
 <td><p>placeholder</p></td>
 </tr>
@@ -121,9 +120,6 @@
 <td><p>2026-02-12</p></td>
 <td><p>Llama-3.3-70B</p></td>
 <td><p>KG-RAG</p></td>
-<td><p>movie</p></td>
-<td><p>0.000</p></td>
-<td><p>0.000</p></td>
 <td><p>0.000</p></td>
 <td><p>placeholder</p></td>
 </tr>
@@ -131,9 +127,6 @@
 <td><p>2026-02-12</p></td>
 <td><p>Llama-3.3-70B</p></td>
 <td><p>RAG</p></td>
-<td><p>movie</p></td>
-<td><p>0.000</p></td>
-<td><p>0.000</p></td>
 <td><p>0.000</p></td>
 <td><p>placeholder</p></td>
 </tr>
@@ -141,9 +134,94 @@
 <td><p>2026-02-12</p></td>
 <td><p>Llama-3.3-70B</p></td>
 <td><p>IO</p></td>
-<td><p>movie</p></td>
 <td><p>0.000</p></td>
+<td><p>placeholder</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="arxiv-cy">
+<h2>Arxiv_CY<a class="headerlink" href="#arxiv-cy" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Rank</p></th>
+<th class="head"><p>Date</p></th>
+<th class="head"><p>Model</p></th>
+<th class="head"><p>Method</p></th>
+<th class="head"><p>Acc</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1</p></td>
+<td><p>2026-02-12</p></td>
+<td><p>Llama-3.3-70B</p></td>
+<td><p>HybridRAG</p></td>
 <td><p>0.000</p></td>
+<td><p>placeholder</p></td>
+</tr>
+<tr class="row-odd"><td><p>2</p></td>
+<td><p>2026-02-12</p></td>
+<td><p>Llama-3.3-70B</p></td>
+<td><p>KG-RAG</p></td>
+<td><p>0.000</p></td>
+<td><p>placeholder</p></td>
+</tr>
+<tr class="row-even"><td><p>3</p></td>
+<td><p>2026-02-12</p></td>
+<td><p>Llama-3.3-70B</p></td>
+<td><p>RAG</p></td>
+<td><p>0.000</p></td>
+<td><p>placeholder</p></td>
+</tr>
+<tr class="row-odd"><td><p>4</p></td>
+<td><p>2026-02-12</p></td>
+<td><p>Llama-3.3-70B</p></td>
+<td><p>IO</p></td>
+<td><p>0.000</p></td>
+<td><p>placeholder</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="arxiv-bio">
+<h2>Arxiv_BIO<a class="headerlink" href="#arxiv-bio" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Rank</p></th>
+<th class="head"><p>Date</p></th>
+<th class="head"><p>Model</p></th>
+<th class="head"><p>Method</p></th>
+<th class="head"><p>Acc</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1</p></td>
+<td><p>2026-02-12</p></td>
+<td><p>Llama-3.3-70B</p></td>
+<td><p>HybridRAG</p></td>
+<td><p>0.000</p></td>
+<td><p>placeholder</p></td>
+</tr>
+<tr class="row-odd"><td><p>2</p></td>
+<td><p>2026-02-12</p></td>
+<td><p>Llama-3.3-70B</p></td>
+<td><p>KG-RAG</p></td>
+<td><p>0.000</p></td>
+<td><p>placeholder</p></td>
+</tr>
+<tr class="row-even"><td><p>3</p></td>
+<td><p>2026-02-12</p></td>
+<td><p>Llama-3.3-70B</p></td>
+<td><p>RAG</p></td>
+<td><p>0.000</p></td>
+<td><p>placeholder</p></td>
+</tr>
+<tr class="row-odd"><td><p>4</p></td>
+<td><p>2026-02-12</p></td>
+<td><p>Llama-3.3-70B</p></td>
+<td><p>IO</p></td>
 <td><p>0.000</p></td>
 <td><p>placeholder</p></td>
 </tr>
@@ -157,10 +235,7 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">Date</span></code>: YYYY-MM-DD</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Model</span></code>: Model name and size</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Method</span></code>: IO, RAG, KG-RAG, HybridRAG, etc.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">Dataset</span></code>: Evaluated split/domain</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">EM</span></code>: Exact match</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">F1</span></code>: Token-level F1</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">Faithfulness</span></code>: Attribution/grounding consistency</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Acc</span></code>: Primary accuracy metric</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Notes</span></code>: Optional details (retriever, hops, or config)</p></li>
 </ul>
 </section>

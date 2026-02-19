@@ -9,6 +9,7 @@ DOCTREEDIR    = ../.doctrees
 
 html:
 	$(SPHINXBUILD) -b html -d "$(DOCTREEDIR)" "$(SOURCEDIR)" "$(OUTPUTDIR)"
+	cp -f "$(SOURCEDIR)/_static/custom.css" "$(OUTPUTDIR)/_static/custom.css"
 
 clean:
 	rm -rf "$(DOCTREEDIR)" \

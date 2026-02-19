@@ -2,6 +2,7 @@ import datetime
 import os
 import sys
 
+sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, os.path.abspath('../../'))
 
 project = 'HybridRAG-Bench'
@@ -14,6 +15,7 @@ extensions = [
     'sphinx.ext.autosummary',
     'sphinx.ext.napoleon',
     'sphinx.ext.viewcode',
+    'hybridrag_logo',
 ]
 
 templates_path = ['_templates']

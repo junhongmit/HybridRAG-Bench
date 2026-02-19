@@ -67,6 +67,14 @@
   color: var(--text-strong);
 }
 
+.rst-content h2,
+.rst-content h3,
+.rst-content .toctree-wrapper > p.caption {
+  font-family: "Roboto Slab", "Lato", "Segoe UI", sans-serif;
+  font-weight: 300;
+  letter-spacing: 0.01em;
+}
+
 .rst-content a {
   color: var(--brand-primary-dark);
 }
@@ -86,4 +94,182 @@
 
 .rst-content table.docutils tbody tr:nth-child(2n) td {
   background: var(--brand-soft);
+}
+
+/* H2GB-like polish: code blocks, admonitions, and prev/next buttons */
+.rst-content pre.literal-block,
+.rst-content div[class^="highlight"] {
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 4px 14px rgba(18, 50, 74, 0.08);
+}
+
+.rst-content div.highlight {
+  background: linear-gradient(135deg, #f7fbff, #edf6ff);
+}
+
+.rst-content div[class^="highlight"] pre,
+.rst-content pre.literal-block {
+  font-size: 86%;
+}
+
+.highlight .kn,
+.highlight .k {
+  color: #d73a49;
+}
+
+.highlight .nc {
+  color: #b45309;
+}
+
+.highlight .fm,
+.highlight .nd,
+.highlight .nf,
+.highlight .nb {
+  color: #5b21b6;
+}
+
+.highlight .kc,
+.highlight .s1,
+.highlight .s2,
+.highlight .mi,
+.highlight .mf,
+.highlight .bn,
+.highlight .ow {
+  color: #0b61a4;
+}
+
+.highlight .c1 {
+  color: #64748b;
+}
+
+.rst-content .admonition {
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(18, 50, 74, 0.08);
+}
+
+.rst-content .admonition .admonition-title {
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+
+.rst-content .admonition.note {
+  background: linear-gradient(135deg, rgba(90, 174, 230, 0.24), rgba(90, 174, 230, 0.12));
+}
+
+.rst-content .admonition.note .admonition-title {
+  background: linear-gradient(135deg, rgba(47, 141, 203, 0.40), rgba(90, 174, 230, 0.30));
+}
+
+.rst-content .admonition.warning {
+  background: linear-gradient(135deg, rgba(244, 197, 66, 0.30), rgba(245, 158, 11, 0.14));
+}
+
+.rst-content .admonition.warning .admonition-title {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.44), rgba(244, 197, 66, 0.36));
+}
+
+a.btn,
+a.btn:visited,
+.wy-nav-content .rst-footer-buttons a.btn {
+  border: none;
+  box-shadow: 0 6px 14px rgba(47, 141, 203, 0.18);
+  padding: 10px 18px;
+  border-radius: 10px;
+  color: #ffffff !important;
+  background: linear-gradient(135deg, var(--brand-primary), var(--brand-primary-dark));
+}
+
+a.btn:hover,
+.wy-nav-content .rst-footer-buttons a.btn:hover {
+  background: linear-gradient(135deg, var(--brand-primary-dark), #1f6fa8);
+}
+
+a.btn:active {
+  background: linear-gradient(135deg, #1f6fa8, #165b8d);
+}
+
+a.btn span.fa-arrow-circle-right {
+  margin-left: 6px;
+}
+
+a.btn span.fa-arrow-circle-left {
+  margin-right: 6px;
+}
+
+.rst-content .paper-link-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 14px 0 20px;
+  padding: 12px 14px;
+  border: 1px solid #cfe4f5;
+  border-left: 6px solid var(--brand-accent);
+  border-radius: 10px;
+  background: linear-gradient(135deg, #f8fcff 0%, #eef7ff 100%);
+  text-decoration: none;
+  box-shadow: 0 3px 10px rgba(47, 141, 203, 0.08);
+}
+
+.rst-content .paper-link-card:hover {
+  border-color: #b5d7ef;
+  box-shadow: 0 8px 20px rgba(47, 141, 203, 0.16);
+}
+
+.rst-content .paper-icon {
+  width: 38px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #fff9df;
+  color: #9a6d00;
+  font-size: 20px;
+  flex: 0 0 38px;
+}
+
+.rst-content .paper-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.rst-content .paper-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #8d6b00;
+}
+
+.rst-content .paper-title {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--text-strong);
+}
+
+span.inline-logo {
+  display: inline-block;
+  white-space: nowrap;
+  padding-left: 1.45em;
+  background-repeat: no-repeat;
+  background-position: 0.02em 52%;
+  background-size: auto 125%;
+}
+
+span.inline-logo.empty {
+  margin-right: -0.1em;
+}
+
+span.inline-logo.empty:before {
+  content: "\200b";
+}
+
+span.inline-logo.hybridrag {
+  padding-left: 1.55em;
+  background-image: url("logo.png");
+  background-size: auto 145%;
 }

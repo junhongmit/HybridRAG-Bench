@@ -9,7 +9,7 @@
   <title>HybridRAG-Bench Documentation &mdash; HybridRAG-Bench Documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
-      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=10291426" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=4ba378b6" />
 
   
     <link rel="shortcut icon" href="_static/logo.png"/>
@@ -77,8 +77,28 @@
              
   <section id="hybridrag-bench-documentation">
 <h1>HybridRAG-Bench Documentation<a class="headerlink" href="#hybridrag-bench-documentation" title="Link to this heading"></a></h1>
-<p><strong>HybridRAG-Bench</strong> is a benchmarking framework for retrieval-intensive, multi-hop reasoning over hybrid knowledge.
-It evaluates how retrieval-augmented methods use both unstructured text and structured knowledge graphs under realistic settings.</p>
+<a class="paper-link-card" href="https://www.arxiv.org/abs/2602.10210" target="_blank" rel="noopener noreferrer">
+  <span class="paper-icon" aria-hidden="true">&#128196;</span>
+  <span class="paper-text">
+    <span class="paper-label">Read The Paper</span>
+    <span class="paper-title">How Much Reasoning Do Retrieval-Augmented Models Add beyond LLMs?</span>
+  </span>
+</a>
+<br><p>Large language models (LLMs) continue to struggle with knowledge-intensive questions that require up-to-date
+information and multi-hop reasoning. Augmenting LLMs with hybrid external knowledge, such as unstructured text
+and structured knowledge graphs, offers a promising alternative to costly continual pretraining. As such,
+reliable evaluation of their retrieval and reasoning capabilities becomes critical. However, many existing
+benchmarks increasingly overlap with LLM pretraining data, which means answers or supporting knowledge may
+already be encoded in model parameters, making it difficult to distinguish genuine retrieval and reasoning
+from parametric recall.</p>
+<p>We introduce <span class="inline-logo hybridrag empty"></span> <strong>HybridRAG-Bench</strong>, a framework for constructing benchmarks to evaluate retrieval-intensive,
+multi-hop reasoning over hybrid knowledge. <span class="inline-logo hybridrag empty"></span> HybridRAG-Bench automatically couples unstructured text and structured
+knowledge graph representations derived from recent scientific literature on arXiv, and generates
+knowledge-intensive question-answer pairs grounded in explicit reasoning paths. The framework supports flexible
+domain and time-frame selection, enabling contamination-aware and customizable evaluation as models and knowledge
+evolve. Experiments across three domains (artificial intelligence, governance and policy, and bioinformatics)
+demonstrate that <span class="inline-logo hybridrag empty"></span> HybridRAG-Bench rewards genuine retrieval and reasoning rather than parametric recall, offering
+a principled testbed for evaluating hybrid knowledge-augmented reasoning systems.</p>
 <img alt="_images/framework.png" class="align-center" src="_images/framework.png" />
 <p>The framework supports:</p>
 <ul class="simple">
