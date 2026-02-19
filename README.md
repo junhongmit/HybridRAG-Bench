@@ -1,7 +1,18 @@
 <div align="center">
-
-# How Much Reasoning Do Retrieval-Augmented Models Add beyond LLMs?<br>A Benchmarking Framework for Multi-Hop Inference over Hybrid Knowledge
+  <img src="https://raw.githubusercontent.com/junhongmit/HybridRAG-Bench/main/img/logo.png" width="30%" height="auto"/>
 </div>
+
+<div align="center">
+
+# [How Much Reasoning Do Retrieval-Augmented Models Add beyond LLMs?<br>A Benchmarking Framework for Multi-Hop Inference over Hybrid Knowledge](https://www.arxiv.org/abs/2602.10210)
+[![preprint](https://img.shields.io/static/v1?label=arXiv&message=2602.10210&color=B31B1B&logo=arXiv)](https://www.arxiv.org/abs/2602.10210)
+[![ReadTheDocs](https://img.shields.io/static/v1?label=latest&message=ReadTheDocs&color=orange&logo=readthedocs)](https://junhongmit.github.io/HybridRAG-Bench/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/junhongmit/HybridRAG-Bench/blob/main/LICENSE)
+
+<strong>Junhong Lin¹</strong>, <strong>Bing Zhang²</strong>, <strong>Song Wang³</strong>, <strong>Ziyan Liu</strong>, <strong>Dan Gutfreund²</strong>, <strong>Julian Shun¹</strong>, <strong>Yada Zhu²</strong> <br>
+  ¹ MIT CSAIL, ² IBM Research, ³ University of Central Florida
+
+</div
 
 --------------------------------------------------------------------------------
 
