@@ -17,6 +17,7 @@ results/
 .ipynb_checkpoints/
 __pycache__/
 dev/lib/
+release/
 
 get_statistics.py
 vllm_starter.sh
