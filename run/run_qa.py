@@ -42,6 +42,33 @@ def _compute_token_usage_delta(start_usage):
     return {key: end_usage.get(key, 0) - start_usage.get(key, 0) for key in keys}
 
 
+def build_loader(dataset: str, config: dict, logger: BaseProgressLogger, processor):
+    dataset = dataset.lower()
+    if dataset == "arxiv_ai":
+        domain = "arxiv AI paper"
+        data_path = os.path.join(DATASET_PATH, "arxiv_AI")
+    elif dataset == "arxiv_cy":
+        domain = "arxiv CY paper"
+        data_path = os.path.join(DATASET_PATH, "arxiv_CY")
+    elif dataset == "arxiv_qm":
+        domain = "arxiv QM paper"
+        data_path = os.path.join(DATASET_PATH, "arxiv_QM")
+    else:
+        raise NotImplementedError(
+            f"Dataset {dataset} is not supported in the public release. "
+            "Use one of: arxiv_ai, arxiv_cy, arxiv_qm."
+        )
+
+    loader = ArxivDatasetLoader(
+        data_path,
+        config,
+        "qa",
+        logger,
+        processor=processor,
+    )
+    return loader, domain
+
+
 async def generate_prediction(id: str = "",
                               query: str = "",
                               query_time: datetime = None,
@@ -153,91 +180,12 @@ if __name__ == "__main__":
     logger = QAProgressLogger(progress_path=progress_path)
     print(logger.processed_questions)
 
-    if args.dataset.lower() == "movie":
-        domain = "movie"
-        loader = MovieDatasetLoader(
-            os.path.join(DATASET_PATH, "crag_movie_dev.jsonl.bz2"),
-            config, "qa", logger,
-            processor=functools.partial(generate_prediction, logger=logger)
-        )
-    elif args.dataset.lower() == "movie_2024":
-        domain = "movie"
-        loader = MovieDatasetLoader(
-            os.path.join(DATASET_PATH, "crag_movie_2024_dev.jsonl.bz2"),
-            config, "qa", logger,
-            processor=functools.partial(generate_prediction, logger=logger)
-        )
-    elif args.dataset.lower() == "sports":
-        domain = "sports"
-        loader = SportsDatasetLoader(
-            os.path.join(DATASET_PATH, "crag_sports_dev.jsonl.bz2"),
-            config, "qa", logger,
-            processor=functools.partial(generate_prediction, logger=logger)
-        )
-    elif args.dataset.lower() == "sports_2024":
-        domain = "sports"
-        loader = SportsDatasetLoader(
-            os.path.join(DATASET_PATH, "crag_sports_2024_dev.jsonl.bz2"),
-            config, "qa", logger,
-            processor=functools.partial(generate_prediction, logger=logger)
-        )
-    elif args.dataset.lower() == "music":
-        domain = "music"
-        loader = MusicDatasetLoader(
-            os.path.join(DATASET_PATH, "crag_music_dev.jsonl.bz2"),
-            config, "qa", logger,
-            processor=functools.partial(generate_prediction, logger=logger)
-        )
-    elif args.dataset.lower() == "finance":
-        domain = "finance"
-        loader = ArxivDatasetLoader(
-            os.path.join(DATASET_PATH, "finance"),
-            config, "qa", logger, 
-            processor=functools.partial(generate_prediction, logger=logger)
-        )
-        # loader = FinanceDatasetLoader(
-        #     os.path.join(DATASET_PATH, "crag_finance_dev.jsonl.bz2"),
-        #     config, "qa", logger,
-        #     processor=functools.partial(generate_prediction, logger=logger)
-        # )
-    elif args.dataset.lower() == "multitq":
-        domain = "open"
-        loader = MultiTQDatasetLoader(
-            "dataset/MultiTQ",
-            config, "qa", logger,
-            processor=functools.partial(generate_prediction, logger=logger)
-        )
-    elif args.dataset.lower() == "timequestions":
-        domain = "yearly question"
-        extra_config = dict(args.config) if args.config else {}
-        loader = TimeQuestionsDatasetLoader(
-            "dataset/TimeQuestions",
-            config, "qa", extra_config.get("split", "test"), logger,
-            processor=functools.partial(generate_prediction, logger=logger)
-        )
-    elif args.dataset.lower() == "arxiv_ai":
-        domain = "arxiv AI paper"
-        loader = ArxivDatasetLoader(
-            os.path.join(DATASET_PATH, "arxiv_AI"),
-            config, "qa", logger, 
-            processor=functools.partial(generate_prediction, logger=logger)
-        )
-    elif args.dataset.lower() == "arxiv_cy":
-        domain = "arxiv CY paper"
-        loader = ArxivDatasetLoader(
-            os.path.join(DATASET_PATH, "arxiv_CY"),
-            config, "qa", logger, 
-            processor=functools.partial(generate_prediction, logger=logger)
-        )
-    elif args.dataset.lower() == "arxiv_qm":
-        domain = "arxiv QM paper"
-        loader = ArxivDatasetLoader(
-            os.path.join(DATASET_PATH, "arxiv_QM"),
-            config, "qa", logger, 
-            processor=functools.partial(generate_prediction, logger=logger)
-        )
-    else:
-        raise NotImplementedError(f"Dataset {args.dataset} is not supported.")
+    loader, domain = build_loader(
+        args.dataset,
+        config,
+        logger,
+        functools.partial(generate_prediction, logger=logger),
+    )
 
     participant_model = MODEL_MAP[args.model](
         dataset=args.dataset.lower(),

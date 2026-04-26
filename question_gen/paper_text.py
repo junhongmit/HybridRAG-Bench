@@ -3,6 +3,11 @@ import os
 import re
 from typing import Any, Dict, Iterable, Optional
 
+from question_gen.evidence import (
+    build_groundtruth_entry,
+    load_questions_and_groundtruth,
+    write_questions_and_groundtruth,
+)
 from utils.logger import BaseProgressLogger, DefaultProgressLogger
 from utils.utils import generate_response
 
@@ -100,9 +105,8 @@ async def generate(path: str,
 
     data_path = path or cfg["data_path"]
     gen_round = cfg.get("gen_round", GEN_ROUND)
-    output_path = os.path.join(data_path, "questions.json")
-
-    output = []
+    question_filename = "questions.json"
+    output, groundtruth = load_questions_and_groundtruth(data_path, question_filename, logger=logger)
     for idx, text in enumerate(load_documents(data_path)):
         logger.info(f"Working on {idx} paper: {text['id']}")
         user_prompt = USER_PROMPT.format(text=text["context"])
@@ -137,15 +141,28 @@ async def generate(path: str,
                 continue
 
             for question in questions:
-                output.append(
-                    {
-                        "id": len(output),
-                        "paper": text["id"],
-                        "question": question["question"],
-                        "answer": question["answer"],
-                    }
+                question_id = len(output)
+                qa_entry = {
+                    "id": question_id,
+                    "paper": text["id"],
+                    "question": question["question"],
+                    "answer": question["answer"],
+                }
+                output.append(qa_entry)
+                groundtruth.append(
+                    build_groundtruth_entry(
+                        question_id=question_id,
+                        question=qa_entry["question"],
+                        answer=qa_entry["answer"],
+                        question_type="paper",
+                        relation_paths=[],
+                        text_paragraphs=[text["context"]],
+                        metadata={
+                            "paper": text["id"],
+                            "doc_path": text["doc_path"],
+                        },
+                    )
                 )
-        with open(output_path, "w", encoding="utf-8") as file:
-            json.dump(output, file, indent=4, ensure_ascii=False)
+        output_path, _ = write_questions_and_groundtruth(data_path, question_filename, output, groundtruth)
 
     return output_path

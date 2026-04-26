@@ -21,6 +21,7 @@ DEFAULT_CONFIG: Dict[str, Any] = {
     "embedding_base_url": os.getenv("EMB_API_BASE"),
     "azure_endpoint": os.getenv("HIPPORAG_AZURE_ENDPOINT"),
     "azure_embedding_endpoint": os.getenv("HIPPORAG_AZURE_EMBED_ENDPOINT"),
+    "hipporag_dataset": None,
     "retrieval_top_k": 50,
     "qa_top_k": 5,
 }
@@ -31,7 +32,7 @@ class HippoRAG_Model:
     Wraps the upstream HippoRAG 2 codebase inside our inference interface.
 
     Usage:
-        python run/run_qa.py --model hipporag --dataset movie --config corpus_path=/path/to/docs auto_index=True
+        python run/run_qa.py --model hipporag --dataset arxiv_ai --config corpus_path=/path/to/docs auto_index=True
     """
 
     def __init__(
@@ -59,6 +60,9 @@ class HippoRAG_Model:
         if self.config["hipporag_save_dir"] is None:
             self.config["hipporag_save_dir"] = str(
                 repo_root / "results" / "hipporag_cache" / dataset)
+        if self.config["hipporag_dataset"] is None and self.domain:
+            if "arxiv" in self.domain.lower():
+                self.config["hipporag_dataset"] = "arxiv"
 
         self.store = HippoRAGStore(
             repo_path=self.config["hipporag_repo_path"],
@@ -70,6 +74,7 @@ class HippoRAG_Model:
             azure_endpoint=self.config.get("azure_endpoint"),
             azure_embedding_endpoint=self.config.get(
                 "azure_embedding_endpoint"),
+            dataset=self.config.get("hipporag_dataset"),
             retrieval_top_k=self.config.get("retrieval_top_k"),
             qa_top_k=self.config.get("qa_top_k"),
             force_reindex=self.config.get("force_index", False),

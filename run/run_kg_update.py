@@ -18,35 +18,7 @@ if __name__ == "__main__":
     }
     logger = KGProgressLogger(progress_path=args.progress_path.format(dataset=args.dataset))
     updater = KG_Updater(config=config, logger=logger)
-    if args.dataset.lower() == "movie":
-        domain = "movie"
-        loader = MovieDatasetLoader(
-            os.path.join(DATASET_PATH, "crag_movie_dev.jsonl.bz2"), 
-            config, "doc", logger, 
-            processor=functools.partial(updater.process_doc, domain=domain)
-        )
-    elif args.dataset.lower() == "sports":
-        domain = "sports"
-        loader = SportsDatasetLoader(
-            os.path.join(DATASET_PATH, "crag_sports_dev.jsonl.bz2"), 
-            config, "doc", logger, 
-            processor=functools.partial(updater.process_doc, domain=domain)
-        )
-    elif args.dataset.lower() == "music":
-        domain = "music"
-        loader = MusicDatasetLoader(
-            os.path.join(DATASET_PATH, "crag_music_dev.jsonl.bz2"), 
-            config, "doc", logger, 
-            processor=functools.partial(updater.process_doc, domain=domain)
-        )
-    elif args.dataset.lower() == "finance":
-        domain = "finance"
-        loader = FinanceDatasetLoader(
-            os.path.join(DATASET_PATH, "crag_finance_dev.jsonl.bz2"), 
-            config, "doc", logger, 
-            processor=functools.partial(updater.process_doc, domain=domain)
-        )
-    elif args.dataset.lower() == "arxiv_ai":
+    if args.dataset.lower() == "arxiv_ai":
         domain = "arxiv AI paper"
         loader = ArxivDatasetLoader(
             os.path.join(DATASET_PATH, "arxiv_AI"),
@@ -67,14 +39,11 @@ if __name__ == "__main__":
             config, "doc", logger, 
             processor=functools.partial(updater.process_doc, domain=domain)
         )
-    # elif args.dataset.lower() == "kggen":
-    #     domain = "open"
-    #     loader = KGGenDatasetLoader(
-    #         config, "doc", logger, 
-    #         processor=functools.partial(updater.process_doc, domain=domain)
-    #     )
     else:
-        raise NotImplementedError(f"Dataset {args.dataset} is not supported.")
+        raise NotImplementedError(
+            f"Dataset {args.dataset} is not supported in the public release. "
+            "Use one of: arxiv_ai, arxiv_cy, arxiv_qm."
+        )
     print(logger.processed_docs)
 
     loop = always_get_an_event_loop()

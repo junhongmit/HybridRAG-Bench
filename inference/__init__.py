@@ -10,6 +10,8 @@ from inference.tog2_model import ToG2_Model
 from inference.pog_model import PoG_Model
 from inference.rog_model import RoG_Model
 from inference.hipporag_model import HippoRAG_Model
+from inference.lightrag_model import LightRAG_Model
+from inference.graphrag_model import GraphRAG_Model
 from inference.evoreasoner_model import EvoReasoner_Model
 from inference.r2kg_model import R2KG_Model
 
@@ -26,6 +28,8 @@ MODEL_MAP = {
     "pog": PoG_Model,
     "rog": RoG_Model,
     "hipporag": HippoRAG_Model,
+    "lightrag": LightRAG_Model,
+    "graphrag": GraphRAG_Model,
     "evoresoner": EvoReasoner_Model,
     "r2kg": R2KG_Model,
 }

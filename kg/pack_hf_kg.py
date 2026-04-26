@@ -81,6 +81,20 @@ def normalize_scalar(v: Any) -> Any:
     return v
 
 
+def normalize_prop_value_text(v: Any) -> str:
+    """
+    Force property values into a single parquet-compatible text column.
+    This avoids mixed object dtype issues in pyarrow (int/str/list/dict in one column).
+    """
+    if v is None:
+        return ""
+    if isinstance(v, (datetime, date)):
+        return v.isoformat()
+    if isinstance(v, (list, tuple, dict)):
+        return json.dumps(v, ensure_ascii=False, sort_keys=True, default=json_default)
+    return str(v)
+
+
 def chunk_offsets(total: int, batch_size: int) -> Iterable[int]:
     for offset in range(0, total, batch_size):
         yield offset
@@ -146,7 +160,7 @@ def export_nodes(session, batch_size: int, drop_internal_labels: bool) -> tuple[
                     {
                         "node_id": int(r["node_id"]),
                         "key": str(k),
-                        "value": normalize_scalar(v),
+                        "value": normalize_prop_value_text(v),
                     }
                 )
 
@@ -186,7 +200,7 @@ def export_edges(session, batch_size: int) -> tuple[pd.DataFrame, pd.DataFrame]:
                     {
                         "edge_id": int(r["edge_id"]),
                         "key": str(k),
-                        "value": normalize_scalar(v),
+                        "value": normalize_prop_value_text(v),
                     }
                 )
 

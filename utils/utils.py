@@ -188,16 +188,23 @@ async def generate_response(prompt,
     client = custom_client if custom_client else _client
     model = custom_model if custom_model else MODEL_NAME
 
-    max_context_length = CONTEXT_LENGTH - max_tokens - 1024
+    max_context_length = max(CONTEXT_LENGTH - max_tokens - 1024, 1)
     for message in prompt:
-        if message["role"] == "system":
-            tokens = _tokenizer.encode(message["content"], truncation=True, max_length=max_context_length)
-            max_context_length -= len(tokens)
-        if message["role"] == "user":
-            message["content"] = truncate_to_tokens(message["content"], max_context_length, tokenizer=_tokenizer)
+        remaining_budget = max(max_context_length, 1)
+        truncated_content = truncate_to_tokens(
+            message["content"],
+            remaining_budget,
+            tokenizer=_tokenizer
+        )
+        message["content"] = truncated_content
+
+        used_tokens = len(_tokenizer.encode(truncated_content))
+        max_context_length = max(max_context_length - used_tokens, 1)
 
     """Asynchronous function to evaluate a single answer."""
     llm_start = time.perf_counter()
+    response = None
+    # if "gpt-5" not in model:
     response = await client.chat.completions.create(
         model=model,
         messages=prompt,
@@ -205,8 +212,23 @@ async def generate_response(prompt,
         temperature=temperature,
         top_p=top_p,
         timeout=timeout,
+        extra_body={
+            "reasoning": {
+                "effort": "minimal"
+            }
+        },
         **kwargs
     )
+    # else:
+    #     response = await client.chat.completions.create(
+    #         model=model,
+    #         messages=prompt,
+    #         max_completion_tokens=max_tokens,
+    #         temperature=1,
+    #         timeout=timeout,
+    #         reasoning_effort="minimal",
+    #         **kwargs
+    #     )
     llm_end = time.perf_counter()
     llm_elapsed = llm_end - llm_start
     if token_counter:
@@ -223,6 +245,7 @@ async def generate_response(prompt,
         token_counter.update_token_usage("completion_tokens", usage.completion_tokens)
         token_counter.update_token_usage("total_tokens", usage.total_tokens)
 
+    print(response)
     if return_raw:
         return response
     else:
@@ -247,6 +270,8 @@ async def generate_eval_response(**kwargs):
 #     return trimmed_prediction
 
 def truncate_to_tokens(text: str, max_tokens: int = EMB_CONTEXT_LENGTH, tokenizer=_tokenizer) -> str:
+    if max_tokens <= 1:
+        return ""
     tokens = tokenizer.encode(text, truncation=True, max_length=max_tokens - 1)
     return tokenizer.decode(tokens, skip_special_tokens=True)
 

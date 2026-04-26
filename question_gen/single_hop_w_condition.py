@@ -2,6 +2,11 @@ import json
 import os, sys; sys.path.append(os.path.abspath('..'))
 from typing import Any, Dict, Optional, List
 
+from question_gen.evidence import (
+    build_groundtruth_entry,
+    load_questions_and_groundtruth,
+    write_questions_and_groundtruth,
+)
 from kg.kg_driver import *
 from kg.kg_rep import *
 from utils.utils import *
@@ -269,18 +274,29 @@ async def generate(
     max_tokens = config.get("max_tokens") or _DEFAULT_MAX_TOKENS
     temperature = config.get("temperature") or _DEFAULT_TEMPERATURE
 
-    output_path = os.path.join(path, f"questions_single_hop_w_conditions.json")
-
-    output = []
+    question_filename = "questions_single_hop_w_conditions.json"
+    output, groundtruth = load_questions_and_groundtruth(path, question_filename, logger=logger)
     for idx in range(gen_round):
         logger.info(f"Working on {idx} batch of question:")
         results = kg_driver.run_query(QUERY_REGULAR, {"limit": limit})
         _, relations = instantiate_from_path_rows(results)
-        contexts = [relation_to_dict(rel) for rel in relations]
-        contexts = _filter_pure_conceptual_relations(contexts)
-        contexts = [_format_context(context) for context in contexts]
+        filtered_relations = []
+        filtered_contexts = []
+        for relation in relations:
+            parsed_relation = relation_to_dict(relation)
+            if _is_pure_conceptual_relation(parsed_relation):
+                h_name = parsed_relation.get("h_name", "")
+                t_name = parsed_relation.get("t_name", "")
+                h_type = str(parsed_relation.get("h_type", "") or "").lower()
+                t_type = str(parsed_relation.get("t_type", "") or "").lower()
+                logger.info(
+                    f"Filter out {h_name} - {h_type}, {t_name} - {t_type} due to all entities are conceptual."
+                )
+                continue
+            filtered_relations.append(relation)
+            filtered_contexts.append(_format_context(parsed_relation))
         
-        user_prompt = USER_PROMPT.format(text="\n".join(contexts))
+        user_prompt = USER_PROMPT.format(text="\n".join(filtered_contexts))
         prompts = [
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": user_prompt},
@@ -298,14 +314,33 @@ async def generate(
         questions = json.loads(response)
 
         for qid, question in questions.items():
-            output.append({
-                "id": len(output),
+            question_id = len(output)
+            qa_entry = {
+                "id": question_id,
                 "question": question["question"],
-                "answer": question["answer"]
-            })
+                "answer": question["answer"],
+            }
+            output.append(qa_entry)
 
-        with open(output_path, "w", encoding="utf-8") as f:
-            json.dump(output, f, indent=4, ensure_ascii=False)
+            relation_idx = int(qid) - 1 if str(qid).isdigit() else None
+            matched_relation = None
+            if relation_idx is not None and 0 <= relation_idx < len(filtered_relations):
+                matched_relation = filtered_relations[relation_idx]
+
+            groundtruth.append(
+                build_groundtruth_entry(
+                    question_id=question_id,
+                    question=qa_entry["question"],
+                    answer=qa_entry["answer"],
+                    question_type="single_hop_w_conditions",
+                    relation_paths=[[matched_relation]] if matched_relation else [],
+                    metadata={
+                        "source_prompt_index": qid,
+                    },
+                )
+            )
+
+        output_path, _ = write_questions_and_groundtruth(path, question_filename, output, groundtruth)
 
     return output_path
 
@@ -337,21 +372,7 @@ def _format_context(parsed_relation: dict):
     return USER_TEMPLATE.format(**variables)
 
 
-def _filter_pure_conceptual_relations(relations: List[Dict[str, Any]]):
-    """Filter relations based on the condition.
-    
-    We think these conditions suggest the relation cannot generate a proper question.
-    """
-    relations_filtered = []
-    for rel in relations:
-        h_type = str(rel.get("h_type", "") or "").lower()
-        t_type = str(rel.get("t_type", "") or "").lower()
-        if h_type == "concept" and t_type == "concept":
-            h_name = rel.get("h_name", "")
-            t_name = rel.get("t_name", "")
-            logger.info(
-                f"Filter out {h_name} - {h_type}, {t_name} - {t_type} due to all entities are conceptual."
-            )
-        else:
-            relations_filtered.append(rel)
-    return relations_filtered
+def _is_pure_conceptual_relation(rel: Dict[str, Any]) -> bool:
+    h_type = str(rel.get("h_type", "") or "").lower()
+    t_type = str(rel.get("t_type", "") or "").lower()
+    return h_type == "concept" and t_type == "concept"

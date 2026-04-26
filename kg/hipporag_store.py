@@ -26,6 +26,7 @@ class HippoRAGStore:
         embedding_base_url: Optional[str] = None,
         azure_endpoint: Optional[str] = None,
         azure_embedding_endpoint: Optional[str] = None,
+        dataset: Optional[str] = None,
         retrieval_top_k: Optional[int] = None,
         qa_top_k: Optional[int] = None,
         force_reindex: bool = False,
@@ -58,6 +59,8 @@ class HippoRAGStore:
             config.llm_name = llm_model_name
         if embedding_model_name:
             config.embedding_model_name = embedding_model_name
+        if dataset:
+            config.dataset = dataset
         if retrieval_top_k:
             config.retrieval_top_k = retrieval_top_k
         if qa_top_k:

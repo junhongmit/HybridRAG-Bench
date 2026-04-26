@@ -1,6 +1,13 @@
 import os
 from typing import Any, Dict, Optional
 
+from question_gen.evidence import (
+    build_groundtruth_entry,
+    build_row_path_index,
+    find_relation_path,
+    load_questions_and_groundtruth,
+    write_questions_and_groundtruth,
+)
 from kg.kg_driver import *
 from kg.kg_rep import *
 from utils.utils import *
@@ -87,7 +94,11 @@ The following is the return JSON schema, with the key being the question ID, and
 {
   "1": {
     "question": "<open-ended question>",
-    "answer": "<paragraph-long answer grounded in evidence>"
+    "answer": "<paragraph-long answer grounded in evidence>",
+    "reasoning_path": [
+      {"head": "<node_name>", "relation": "<REL_TYPE>", "tail": "<node_name>"},
+      ...
+    ]
   },
   "2": {
     ...
@@ -113,10 +124,8 @@ async def generate(path: str, config: Optional[Dict[str, Any]] = {},
 
     GEN_ROUND = config.get("gen_round", _GEN_ROUND)
 
-    # Changed output file name to reflect inclusion of answers
-    output_path = os.path.join(path, "questions_open_ended.json")
-
-    output = []
+    question_filename = "questions_open_ended.json"
+    output, groundtruth = load_questions_and_groundtruth(path, question_filename, logger=logger)
     for idx in range(GEN_ROUND):
         logger.info(f"Working on {idx} batch of question/answer generation:")
 
@@ -148,6 +157,7 @@ async def generate(path: str, config: Optional[Dict[str, Any]] = {},
         )
 
         entities, relations = instantiate_from_path_rows(results)
+        path_index = build_row_path_index(results, instantiate_from_path_rows)
         # Include paragraph evidence in the context to ground the answer generation
         context = [relation_to_text(relation, include_par=True) for relation in relations]
 
@@ -170,14 +180,28 @@ async def generate(path: str, config: Optional[Dict[str, Any]] = {},
 
         # --- EDITED OUTPUT HANDLING ---
         for qid, qa in questions_answers.items():
-            output.append({
-                "id": len(output),
+            question_id = len(output)
+            qa_entry = {
+                "id": question_id,
                 "question": qa.get("question", ""),
-                "answer": qa.get("answer", "")  # Added 'answer' field
-            })
+                "answer": qa.get("answer", ""),
+            }
+            output.append(qa_entry)
+            matched_path = find_relation_path(path_index, qa.get("reasoning_path"))
+            groundtruth.append(
+                build_groundtruth_entry(
+                    question_id=question_id,
+                    question=qa_entry["question"],
+                    answer=qa_entry["answer"],
+                    question_type="open_ended",
+                    relation_paths=[matched_path] if matched_path else [],
+                    metadata={
+                        "reasoning_path": qa.get("reasoning_path", []),
+                    },
+                )
+            )
         # ----------------------------
 
-        with open(output_path, "w", encoding="utf-8") as f:
-            json.dump(output, f, indent=4, ensure_ascii=False)
+        output_path, _ = write_questions_and_groundtruth(path, question_filename, output, groundtruth)
 
     return output_path

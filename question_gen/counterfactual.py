@@ -1,6 +1,11 @@
 import os
 from typing import Any, Dict, Optional
 
+from question_gen.evidence import (
+    build_groundtruth_entry,
+    load_questions_and_groundtruth,
+    write_questions_and_groundtruth,
+)
 from kg.kg_driver import *
 from kg.kg_rep import *
 from utils.utils import *
@@ -196,19 +201,9 @@ async def generate(path: str, config: Optional[Dict[str, Any]] = {},
     os.makedirs(path, exist_ok=True)
     os.makedirs(raw_log_dir, exist_ok=True)
 
+    question_filename = OUTPUT_FILENAME
     output_path = os.path.join(path, OUTPUT_FILENAME)
-    output: List[Dict[str, Any]] = []
-
-    # resume existing output if present
-    if os.path.exists(output_path):
-        try:
-            with open(output_path, "r", encoding="utf-8") as f:
-                existing = json.load(f)
-                if isinstance(existing, list):
-                    output = existing
-                    logger.info(f"Resumed from existing output with {len(output)} items.")
-        except Exception:
-            logger.warning("Failed to load existing output file; starting fresh.")
+    output, groundtruth = load_questions_and_groundtruth(path, question_filename, logger=logger)
 
     for batch_idx in range(gen_round):
         logger.info(f"Batch {batch_idx+1}/{gen_round}: querying KG for paths...")
@@ -360,11 +355,23 @@ async def generate(path: str, config: Optional[Dict[str, Any]] = {},
                     out_item[k] = "" if k != "grounding_path" else []
 
             output.append(out_item)
+            groundtruth.append(
+                build_groundtruth_entry(
+                    question_id=out_item["id"],
+                    question=out_item["question"],
+                    answer=out_item["answer"],
+                    question_type="counterfactual",
+                    relation_paths=[relations],
+                    metadata={
+                        "original_question": out_item["original_question"],
+                        "grounding_path": grounding,
+                    },
+                )
+            )
 
         # write incremental output so we don't lose work
         try:
-            with open(output_path, "w", encoding="utf-8") as f:
-                json.dump(output, f, indent=2, ensure_ascii=False)
+            output_path, _ = write_questions_and_groundtruth(path, question_filename, output, groundtruth)
         except Exception as e:
             logger.error(f"Failed to write output file: {e}")
 

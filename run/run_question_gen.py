@@ -67,6 +67,21 @@ def _dedup_normalized(data: List[Dict[str, str]]) -> List[Dict[str, str]]:
     return unique
 
 
+def _groundtruth_path_for_questions(question_path: str) -> Optional[str]:
+    base = os.path.basename(question_path)
+    if not base.startswith("questions"):
+        return None
+    return os.path.join(
+        os.path.dirname(question_path),
+        base.replace("questions", "groundtruth", 1),
+    )
+
+
+def _write_json(path: str, payload: List[Dict[str, str]]) -> None:
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(payload, f, indent=4, ensure_ascii=False)
+
+
 def _parse_eval_response(raw: str) -> Tuple[bool, str]:
     """
     Parse the eval model response. Defaults to drop on parse failure.
@@ -136,10 +151,24 @@ async def evaluate_file(input_path: str,
     filtered_path = f"{base}_{suffix}{ext}"
     rejected_path = f"{base}_{suffix}_rejected{ext}"
 
-    with open(filtered_path, "w", encoding="utf-8") as f:
-        json.dump(filtered, f, indent=4, ensure_ascii=False)
-    with open(rejected_path, "w", encoding="utf-8") as f:
-        json.dump(rejected, f, indent=4, ensure_ascii=False)
+    _write_json(filtered_path, filtered)
+    _write_json(rejected_path, rejected)
+
+    groundtruth_path = _groundtruth_path_for_questions(input_path)
+    if groundtruth_path and os.path.exists(groundtruth_path):
+        with open(groundtruth_path, "r", encoding="utf-8") as f:
+            groundtruth = json.load(f)
+        if isinstance(groundtruth, list):
+            kept_ids = {item.get("id") for item in filtered}
+            rejected_ids = {item.get("id") for item in rejected}
+            filtered_groundtruth = [item for item in groundtruth if item.get("id") in kept_ids]
+            rejected_groundtruth = [item for item in groundtruth if item.get("id") in rejected_ids]
+            filtered_groundtruth_path = _groundtruth_path_for_questions(filtered_path)
+            rejected_groundtruth_path = _groundtruth_path_for_questions(rejected_path)
+            if filtered_groundtruth_path:
+                _write_json(filtered_groundtruth_path, filtered_groundtruth)
+            if rejected_groundtruth_path:
+                _write_json(rejected_groundtruth_path, rejected_groundtruth)
 
     logger.info(
         f"Eval complete for {input_path}: kept {len(filtered)}/{len(data)} "
@@ -168,10 +197,20 @@ def deduplicate_file(input_path: str,
     for suffix, fn in methods:
         deduped = fn(data)
         out_path = f"{base}_dedup_{suffix}{ext}"
-        with open(out_path, "w", encoding="utf-8") as f:
-            json.dump(deduped, f, indent=4, ensure_ascii=False)
+        _write_json(out_path, deduped)
         logger.info(f"Dedup ({suffix}) complete: kept {len(deduped)}/{len(data)} → {out_path}")
         output_paths.append(out_path)
+
+        groundtruth_path = _groundtruth_path_for_questions(input_path)
+        if groundtruth_path and os.path.exists(groundtruth_path):
+            with open(groundtruth_path, "r", encoding="utf-8") as f:
+                groundtruth = json.load(f)
+            if isinstance(groundtruth, list):
+                kept_ids = {item.get("id") for item in deduped}
+                deduped_groundtruth = [item for item in groundtruth if item.get("id") in kept_ids]
+                groundtruth_out_path = _groundtruth_path_for_questions(out_path)
+                if groundtruth_out_path:
+                    _write_json(groundtruth_out_path, deduped_groundtruth)
 
     return output_paths
 

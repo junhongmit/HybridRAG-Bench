@@ -68,6 +68,9 @@ class BaseProgressLogger(logging.Logger):
         super().__init__(name, level)
         self.progress_path = progress_path
         self.progress_data = default_progress_data.copy()
+        progress_dir = os.path.dirname(self.progress_path)
+        if progress_dir:
+            os.makedirs(progress_dir, exist_ok=True)
 
         # Optional: add a default stream handler
         if not self.handlers:
@@ -102,6 +105,9 @@ class BaseProgressLogger(logging.Logger):
         """
         for attempt in range(max_retries):
             try:
+                progress_dir = os.path.dirname(self.progress_path)
+                if progress_dir:
+                    os.makedirs(progress_dir, exist_ok=True)
                 with open(self.progress_path, "w", encoding="utf-8") as f:
                     json.dump(self.progress_data, f, indent=4, ensure_ascii=False)
                 self.debug("Progress saved.")

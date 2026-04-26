@@ -2,6 +2,11 @@ import os
 import random
 from typing import Any, Dict, Optional
 
+from question_gen.evidence import (
+    build_groundtruth_entry,
+    load_questions_and_groundtruth,
+    write_questions_and_groundtruth,
+)
 from kg.kg_driver import *
 from kg.kg_rep import *
 from utils.utils import *
@@ -223,8 +228,9 @@ async def generate(path: str, config: Optional[Dict[str, Any]] = {},
     MAX_RELATION_CANDIDATES = config.get("max_relation_candidates", _MAX_RELATION_CANDIDATES)
     RNG = config.get("rng", _RNG)
 
+    question_filename = OUTPUT_FILENAME
     output_path = os.path.join(path, OUTPUT_FILENAME)
-    output: List[Dict[str, Any]] = []
+    output, groundtruth = load_questions_and_groundtruth(path, question_filename, logger=logger)
 
     for batch_idx in range(BATCHES):
         logger.info(f"Batch {batch_idx+1}/{BATCHES} — querying KG for paths...")
@@ -420,6 +426,7 @@ async def generate(path: str, config: Optional[Dict[str, Any]] = {},
                             counterfactual_q = frag.get("counterfactual_question", "").strip()
                             contrastive_q = frag.get("contrastive_question", "").strip()
                             pert_entry = {
+                                "id": len(output),
                                 "original_question": original_question,
                                 "counterfactual_question": counterfactual_q,
                                 "contrastive_question": contrastive_q,
@@ -433,6 +440,23 @@ async def generate(path: str, config: Optional[Dict[str, Any]] = {},
                                 }
                             }
                             output.append(pert_entry)
+                            groundtruth.append(
+                                build_groundtruth_entry(
+                                    question_id=pert_entry["id"],
+                                    question=counterfactual_q,
+                                    answer="",
+                                    question_type="counterfactual_cwqstyle",
+                                    relation_paths=[path_rel_objs],
+                                    metadata={
+                                        "original_question": original_question,
+                                        "contrastive_question": contrastive_q,
+                                        "perturbation_type": "entity",
+                                        "perturbed_element": candidate_name,
+                                        "original_path": original_path,
+                                        "perturbed_path": perturbed_path,
+                                    },
+                                )
+                            )
                         else:
                             logger.warn("Perturbation LLM did not return expected JSON list; skipping this perturbation.")
                     except Exception as e:
@@ -471,6 +495,7 @@ async def generate(path: str, config: Optional[Dict[str, Any]] = {},
                             counterfactual_q = frag.get("counterfactual_question", "").strip()
                             contrastive_q = frag.get("contrastive_question", "").strip()
                             pert_entry = {
+                                "id": len(output),
                                 "original_question": original_question,
                                 "counterfactual_question": counterfactual_q,
                                 "contrastive_question": contrastive_q,
@@ -483,6 +508,23 @@ async def generate(path: str, config: Optional[Dict[str, Any]] = {},
                                 }
                             }
                             output.append(pert_entry)
+                            groundtruth.append(
+                                build_groundtruth_entry(
+                                    question_id=pert_entry["id"],
+                                    question=counterfactual_q,
+                                    answer="",
+                                    question_type="counterfactual_cwqstyle",
+                                    relation_paths=[path_rel_objs],
+                                    metadata={
+                                        "original_question": original_question,
+                                        "contrastive_question": contrastive_q,
+                                        "perturbation_type": "relation",
+                                        "perturbed_element": cand_rel,
+                                        "original_path": original_path,
+                                        "perturbed_path": perturbed_path,
+                                    },
+                                )
+                            )
                         else:
                             logger.warn("Perturbation LLM did not return expected JSON list; skipping this perturbation.")
                     except Exception as e:
@@ -490,8 +532,7 @@ async def generate(path: str, config: Optional[Dict[str, Any]] = {},
 
             # Incremental save after each path processed
             try:
-                with open(output_path, "w", encoding="utf-8") as f:
-                    json.dump(output, f, indent=2, ensure_ascii=False)
+                output_path, _ = write_questions_and_groundtruth(path, question_filename, output, groundtruth)
             except Exception as e:
                 logger.error(f"Failed to write output file: {e}")
 

@@ -1,5 +1,12 @@
 import openai
 import os, sys; sys.path.append(os.path.abspath('..'))
+from question_gen.evidence import (
+    build_groundtruth_entry,
+    build_row_path_index,
+    find_relation_path,
+    load_questions_and_groundtruth,
+    write_questions_and_groundtruth,
+)
 from kg.kg_driver import *
 from kg.kg_rep import *
 from utils.utils import *
@@ -182,9 +189,8 @@ async def generate(
     temperature = config.get("temperature") or _DEFAULT_TEMPERATURE
 
     fn_suffix = f"_difficult" if config.get("difficulty", "regular") == "difficult" else ""
-    output_path = os.path.join(path, f"questions_single_hop{fn_suffix}.json")
-
-    output = []
+    question_filename = f"questions_single_hop{fn_suffix}.json"
+    output, groundtruth = load_questions_and_groundtruth(path, question_filename, logger=logger)
     for idx in range(gen_round):
         logger.info(f"Working on {idx} batch of question:")
 
@@ -195,6 +201,7 @@ async def generate(
         )
 
         entities, relations = instantiate_from_path_rows(results)
+        path_index = build_row_path_index(results, instantiate_from_path_rows)
         context = [relation_to_text(relation, include_par=False) for relation in relations]
 
         user_prompt = USER_PROMPT.format(text="\n".join(context))
@@ -215,13 +222,28 @@ async def generate(
         questions = json.loads(response)
 
         for qid, question in questions.items():
-            output.append({
-                "id": len(output),
+            question_id = len(output)
+            qa_entry = {
+                "id": question_id,
                 "question": question["question"],
-                "answer": question["answer"]
-            })
+                "answer": question["answer"],
+            }
+            output.append(qa_entry)
 
-        with open(output_path, "w", encoding="utf-8") as f:
-            json.dump(output, f, indent=4, ensure_ascii=False)
+            matched_path = find_relation_path(path_index, question.get("reasoning_path"))
+            groundtruth.append(
+                build_groundtruth_entry(
+                    question_id=question_id,
+                    question=qa_entry["question"],
+                    answer=qa_entry["answer"],
+                    question_type="single_hop",
+                    relation_paths=[matched_path] if matched_path else [],
+                    metadata={
+                        "reasoning_path": question.get("reasoning_path", []),
+                    },
+                )
+            )
+
+        output_path, _ = write_questions_and_groundtruth(path, question_filename, output, groundtruth)
 
     return output_path
